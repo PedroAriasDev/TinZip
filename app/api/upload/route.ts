@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { NextRequest } from 'next/server';
 import { Readable } from 'stream';
 
-const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' : `${process.env.RENDER_URL}/download`}`
+const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' : `${process.env.RENDER_URL}`}/download`
 
   export async function POST(request: NextRequest) {
   try {
