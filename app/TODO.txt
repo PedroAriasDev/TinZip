@@ -24,7 +24,6 @@
 
   - id (UUID)
   - nombre_archivo_original (string)
-  - nombre_zip (string)
   - tamaño_bytes (number)
   - titulo (string | null)
   - descripcion (string | null)
@@ -51,7 +50,7 @@
 
   Comportamiento de contraseña:
   - Checkbox: "Generar contraseña automática" — si está marcada, se genera un UUID y el campo de texto queda deshabilitado.
-  - Validación: exigir contraseña >= 6 caracteres para habilitar descarga (configurable).
+  - Validación: exigir contraseña >= 8 caracteres para habilitar descarga (configurable).
 
   Flujo de cliente al subir:
   1) Seleccionar archivos y completar campos.
@@ -64,13 +63,18 @@
   ------------------------
   - POST /api/upload — subir paquete (recibe ZIP cifrado o archivos a comprimir)
     - request: form-data { origin, destinatarios, title, description, password_hash, file }
-    - response: { id, downloadLink }
+    - response: { downloadLink }
 
-  - POST /api/validate — validar contraseña / obtener metadata
+  - GET /api/validate/[id] — validar contraseña / obtener metadata
     - request: { id, password_hash }
-    - response: { result: "ok" | "expired" | "invalid", metadata? }
+    - response: { result: "ok" | "expired" | "invalid" | "error", file }
 
-  - GET /download/:id — descarga (puede requerir password en query/body según diseño)
+    si el archivo existe:
+      si la contrasena es valida
+        si el link no esta vencido: devuelvo ok y el file en file
+        si el link esta vencido: devuelvo ok y en file none
+      si la contrasena es invalida devuelvo invalida
+    si el archivo no existe devuelvo invalid
 
   Consigna y requisitos técnicos
   -----------------------------

@@ -17,7 +17,8 @@ export async function uploadPackageService(payload: UploadRequestData): Promise<
 
   const { data } = await axios.post<UploadResponse>(API_URL, formData, {
     headers: { "Content-Type": "multipart/form-data" },
-  })
+  }) 
 
   return data
 }
+// TODO AGREGAR original_name para pasarlo al backend

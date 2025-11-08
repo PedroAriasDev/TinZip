@@ -2,13 +2,16 @@
 
 import { useState, useEffect, use } from "react";
 import * as yup from "yup";
+import axios, { AxiosError } from "axios";
+import { hashPassword } from "@/utils/hashPassword";
 
 // Importar los nuevos componentes
 import { LoadingComponent } from "@/app/components/download/LoadingComponent";
-import { ErrorComponent } from "@/app/components/download/ErrorComponent";
+import { ErrorModal } from "@/app/components/download/ErrorComponent";
 import { ExpirationWarning } from "@/app/components/download/ExpirationWarning";
 import { FileMetadataDisplay } from "@/app/components/download/FileMetadataDisplay";
 import { DownloadForm } from "@/app/components/download/DownloadForm";
+import Link from "next/link";
 
 
 type FileMetadata = {
@@ -16,6 +19,7 @@ type FileMetadata = {
   filename: string;
   size: number;
   createdAt: string;
+  expiredAt: string; // TODO FALTA ARREGLAR ESTO PORQUE MI EQUIPO NO SE DECIDEW Y YO NO ENTIENDO UNA PORONGA
 };
 type DownloadStatus = "idle" | "loading" | "error" | "ready";
 
@@ -27,32 +31,60 @@ const validationSchema = yup.object().shape({
     .required("Por favor, ingresa la contraseña"),
 });
 
+function FatalErrorDisplay({ error }: { error: string }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center px-6 text-center">
+      <div className="max-w-md">
+        <h1 className="text-6xl font-extrabold text-red-600 mb-4">⚠️</h1>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          Ocurrió un error
+        </h2>
+        <p className="text-gray-600 mb-8">
+          {error || "No pudimos cargar la información de este enlace."}
+        </p>
+        <Link
+            href="/"
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Ir al inicio
+          </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function DownloadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<DownloadStatus>("loading");
-  const [error, setError] = useState("");
+  
+  // 'error' es para errores fatales (carga)
+  const [fatalError, setFatalError] = useState(""); 
+  // 'modalError' es para errores reintentables (contraseña)
+  const [modalError, setModalError] = useState(""); 
+
   const [metadata, setMetadata] = useState<FileMetadata | null>(null);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
-    if (!id) return; //ver que solucion si no hay id
+    if (!id) return;
     const fetchMetadata = async () => {
-      setStatus("loading")
+      setStatus("loading");
       try {
-        const response = await fetch(`/api/metadata/${id}`);
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "El enlace no es valido o ha expirado")
-        }
-
-        const data: FileMetadata = await response.json();
+        const response = await axios.get(`/api/metadata/${id}`);
+        const data: FileMetadata = response.data;
         setMetadata(data);
         setStatus("ready");
       } catch (err) {
         setStatus("error");
-        setError(err instanceof Error ? err.message : "No se pudieron obtener los datos del archivo");
+        let errorMessage = "No se pudieron obtener los datos del archivo";
+        if (axios.isAxiosError(err)) {
+          const errorData = err.response?.data;
+          errorMessage = errorData?.error || "El enlace no es válido o ha expirado";
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        setFatalError(errorMessage);
       }
     };
     fetchMetadata();
@@ -60,35 +92,25 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
 
   const handleDownload = async () => {
     setDownloading(true);
-    setError("");
+    setModalError(""); // Limpiar error modal anterior
 
     try {
       await validationSchema.validate({ password }, { abortEarly: false });
+      const password_hash = await hashPassword(password);
 
-
-      const response = await fetch(`/api/download/:${id}`, {   //este luego que peter termine, ver si coincide el path de la api
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify({ password: password }),
+      const response = await axios.get(`/api/download/${id}`, {
+        params: { password_hash },
+        responseType: 'blob',
       });
 
-      if(!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Contraseña incorrecta o error al descargar");
-      }
-
-      const blob = await response.blob();
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-
       a.download = metadata?.filename || 'archivo.zip';
       document.body.appendChild(a);
       a.click();
-
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
@@ -98,14 +120,37 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
       }, 1500);
 
     } catch (err) {
-      if (err instanceof yup.ValidationError) {
-        setError(err.errors[0]); 
-      } else if (err instanceof Error) {
-        setError(err.message); 
-      } else {
-        setError("Un error desconocido ocurrió al descargar");
-      }
       setDownloading(false);
+      
+      if (err instanceof yup.ValidationError) {
+        // Error de validación (ej. contraseña corta) -> Se muestra en el modal
+        setModalError(err.errors[0]);
+      } else if (axios.isAxiosError(err)) {
+        // Error de la API (ej. contraseña incorrecta)
+        let errorMsg = "Error al descargar";
+        if (err.response?.data) {
+          if (err.response.data instanceof Blob && err.response.data.type === 'application/json') {
+            try {
+              const errorJsonText = await err.response.data.text();
+              const errorJson = JSON.parse(errorJsonText);
+              errorMsg = errorJson.error || errorMsg;
+            } catch (e) {
+              if (err.response.status === 401) errorMsg = "Contraseña incorrecta";
+              else if (err.response.status === 404) errorMsg = "Archivo no encontrado o expirado";
+            }
+          } else if (err.response.data.error) {
+             errorMsg = err.response.data.error;
+          } else if (err.response.status === 401) {
+             errorMsg = "Contraseña incorrecta";
+          }
+        }
+        // ESTE es el cambio clave: usamos el modal para el error
+        setModalError(errorMsg); 
+      } else if (err instanceof Error) {
+        setModalError(err.message);
+      } else {
+        setModalError("Un error desconocido ocurrió al descargar");
+      }
     }
   };
 
@@ -113,26 +158,36 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
     return <LoadingComponent />;
   }
 
+  // Si la carga inicial falló, muestra el error fatal
   if (status === "error" || !metadata) {
-    return <ErrorComponent error={error} />;
+    return <FatalErrorDisplay error={fatalError} />;
   }
 
-  
+  // Si la carga fue exitosa, muestra la página de descarga
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      
+      {/* El Modal de Error ahora vive aquí.
+        Está oculto hasta que 'modalError' tenga contenido.
+        Se cierra limpiando el estado 'modalError'.
+      */}
+      <ErrorModal 
+        errorMessage={modalError} 
+        onClose={() => setModalError("")} 
+      />
+
       <div className="container mx-auto px-4 py-12 max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3 text-balance">Descargar Archivos Seguros</h1>
         </div>
-        <ExpirationWarning hoursRemaining={metadata.hoursRemaining} /> {/*aca hay que modificar para mostrar las horas que faltan para que expire*/}
+        
         
         <FileMetadataDisplay metadata={metadata} />
 
         <DownloadForm
           password={password}
           setPassword={setPassword}
-          error={error}
-          setError={setError}
+          // Ya no pasamos props de error, el modal lo maneja
           downloading={downloading}
           onSubmit={handleDownload}
         />

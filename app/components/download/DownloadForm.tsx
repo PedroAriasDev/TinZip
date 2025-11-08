@@ -3,8 +3,7 @@ import React from "react";
 type DownloadFormProps = {
   password: string;
   setPassword: (value: string) => void;
-  error: string;
-  setError: (value: string) => void;
+  // error y setError ya no son necesarios aquí
   downloading: boolean;
   onSubmit: () => void;
 };
@@ -12,8 +11,6 @@ type DownloadFormProps = {
 export function DownloadForm({
   password,
   setPassword,
-  error,
-  setError,
   downloading,
   onSubmit,
 }: DownloadFormProps) {
@@ -46,7 +43,7 @@ export function DownloadForm({
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (error) setError("");
+                // Ya no limpiamos el error aquí, el modal es independiente
               }}
               disabled={downloading}
               className="block w-full h-12 px-4 text-gray-900 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -55,14 +52,9 @@ export function DownloadForm({
             <p className="text-sm text-gray-500">Usa la contraseña proporcionada por el remitente</p>
           </div>
 
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <svg /* Icono de error */ >...</svg>
-                <p className="text-red-800">{error}</p>
-              </div>
-            </div>
-          )}
+          {/* El bloque de error que estaba aquí fue removido.
+            El modal en page.tsx ahora se encarga de esto.
+          */}
 
           <button
             type="submit"

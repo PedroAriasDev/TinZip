@@ -17,7 +17,5 @@ export interface UploadRequestData {
 }
 
 export interface UploadResponse {
-  id: string
   downloadLink: string
-  expiresAt?: string            // fecha de expiración del link (72h)
 }
