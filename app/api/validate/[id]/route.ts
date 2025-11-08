@@ -14,10 +14,10 @@ export interface FileRecordInfoApiResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }  // params sí viene separado
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const searchParams = request.nextUrl.searchParams;
     const hashed_password = searchParams.get('hash');
 
