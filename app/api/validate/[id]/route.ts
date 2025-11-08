@@ -3,10 +3,9 @@ import { getFileRecordById, getRecordForPasswordCheck } from "@/lib/database/Fil
 import mongoose from "mongoose";
 
 export interface FileRecordInfoApiResponse {
-  originalFilename: string,
   ownerEmail: string,
   fileSizeInBytes: number,
-  title?: string,
+  title: string,
   description?: string,
   createdAt: string,
   expiresAt: string
@@ -30,13 +29,12 @@ export async function GET(
     }
 
     const record = await getRecordForPasswordCheck(id);
-    console.log("RECORD ES ", record)
     // Si el archivo no existe o si el archivo existe pero la contraseña es invalida
     if (!record || record.passwordHash !== hashed_password) {
       console.log('problema 1');
       console.log('password hash recibida: ', hashed_password);
       console.log('password hash guardado: ', record?.passwordHash)
-      return NextResponse.json({ response: "invalid", file: null }, { status: 200 });
+      return NextResponse.json({ response: "invalid", file: null }, { status: 401 });
     }
     // Si el archivo esta expirado, devuelvo valid porq la password es correcta pero expiro
     if (record.isExpired) {
@@ -53,10 +51,9 @@ export async function GET(
     return NextResponse.json({
       response: "valid",
       file: {
-        originalFilename: recordInfo.originalFilename,
         ownerEmail: recordInfo.ownerEmail,
         fileSizeInBytes: recordInfo.fileSizeInBytes,
-        title: recordInfo.title || recordInfo.originalFilename,
+        title: recordInfo.title,
         description: recordInfo.description || '',
         createdAt: recordInfo.createdAt,
         expiresAt: expiresAt 
@@ -67,9 +64,9 @@ export async function GET(
     // Esto es para que sea mas seguro y no se sepa si el archivo no existe
     // O la contraseña esta mal
     if (error instanceof mongoose.Error.CastError) {
-      return NextResponse.json({ response: "invalid", file: null }, { status: 200 });
+      return NextResponse.json({ response: "invalid", file: null }, { status: 401 });
     }
-    console.error("Error al obtener metadata:", error);
+    console.log("Error al obtener metadata:", error);
     const message = error instanceof Error ? error.message : "Error desconocido";
     return NextResponse.json(
       { error: message },

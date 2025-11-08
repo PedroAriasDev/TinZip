@@ -48,8 +48,7 @@ export async function GET(
     return new NextResponse(data as any, {
       status: 200,
       headers: {
-        // Sugerir el nombre de archivo original al navegador
-        "Content-Disposition": `attachment; filename="${record.originalFilename}"`,
+        "Content-Disposition": `attachment; filename="${record.title}"`,
         // Indicar que es un archivo binario genérico
         "Content-Type": "application/octet-stream",
       },

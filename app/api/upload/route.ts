@@ -25,11 +25,12 @@ const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' :
 
     const ownerEmail = formData.get('origin')?.toString();
     const passwordHash = formData.get('password_hash')?.toString();
+    const title = formData.get('title')?.toString();
 
-    if (!ownerEmail || !passwordHash)
+    if (!ownerEmail || !passwordHash || !title)
       return new Response(JSON.stringify({ error: 'Faltan campos obligatorios' }), { status: 400 });
 
-    // --- 7. Lógica para guardar en GridFS ---
+    // --- Lógica para guardar en GridFS ---
     
     // Convierte el stream web (de 'file') a un stream de Node.js
     const fileStreamNode = Readable.fromWeb(file.stream() as any);
@@ -56,11 +57,10 @@ const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' :
 
 
     const fileData: IFileRecord = {
-      originalFilename: file.name,
       fileSizeInBytes: file.size,
       ownerEmail,
       passwordHash,
-      title: formData.get('title')?.toString(),
+      title: formData.get('title')?.toString() || "compressed_file",
       description: formData.get('description')?.toString(),
       recipientEmails: formData.get('recipients') ? JSON.parse(formData.get('recipients')!.toString()) : [],
       gridFsId: gridFsId
@@ -70,7 +70,7 @@ const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' :
 
     return new Response(JSON.stringify({ link: `${url}/download/${newFile.id}` }), { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return new Response(JSON.stringify({ error: (err as Error).message || 'Error desconocido' }), { status: 500 });
   }
 }
