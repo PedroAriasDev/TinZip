@@ -30,8 +30,8 @@ type PageStatus =
   | "notFound"      // id inexistente
   | "error";        // error fatal
 
-export default function DownloadPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function DownloadPage({ params }: { params: { id: string }}) {
+  const { id } = params;
   const router = useRouter();
 
   const [password, setPassword] = useState("");
