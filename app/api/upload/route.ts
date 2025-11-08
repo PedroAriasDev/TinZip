@@ -8,7 +8,7 @@ import { Readable } from 'stream';
 
 const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' : `${process.env.RENDER_URL}`}`
 
-  export async function POST(request: NextRequest) {
+  export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
@@ -18,7 +18,7 @@ const url = `${process.env.NODE_ENV == 'development' ? 'http://localhost:3000' :
       bucketName: 'archivos' 
     });
 
-    const formData = await request.formData();
+    const formData = await req.formData();
     const file = formData.get('file') as File | null;
 
     if (!file) return new Response(JSON.stringify({ error: 'No se subió ningún archivo' }), { status: 400 });
