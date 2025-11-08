@@ -7,11 +7,11 @@ import { hashPassword } from "@/utils/hashPassword";
 
 // Importar los nuevos componentes
 import { LoadingComponent } from "@/app/components/download/LoadingComponent";
-import { ErrorModal } from "@/app/components/download/ErrorComponent";
+import { ErrorModal } from "@/app/components/download/ErrorModal"; 
 import { ExpirationWarning } from "@/app/components/download/ExpirationWarning";
 import { FileMetadataDisplay } from "@/app/components/download/FileMetadataDisplay";
 import { DownloadForm } from "@/app/components/download/DownloadForm";
-import Link from "next/link";
+import { FatalErrorDisplay } from "@/app/components/download/FatalErrorDisplay"; 
 
 
 type FileMetadata = {
@@ -19,7 +19,7 @@ type FileMetadata = {
   filename: string;
   size: number;
   createdAt: string;
-  expiredAt: string; // TODO FALTA ARREGLAR ESTO PORQUE MI EQUIPO NO SE DECIDEW Y YO NO ENTIENDO UNA PORONGA
+  expiresAt: string; // TODO FALTA ARREGLAR ESTO PORQUE MI EQUIPO NO SE DECIDEW Y YO NO ENTIENDO UNA PORONGA
 };
 type DownloadStatus = "idle" | "loading" | "error" | "ready";
 
@@ -30,28 +30,6 @@ const validationSchema = yup.object().shape({
     .min(8, "La contraseña debe tener al menos 8 caracteres") 
     .required("Por favor, ingresa la contraseña"),
 });
-
-function FatalErrorDisplay({ error }: { error: string }) {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50 flex items-center justify-center px-6 text-center">
-      <div className="max-w-md">
-        <h1 className="text-6xl font-extrabold text-red-600 mb-4">⚠️</h1>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Ocurrió un error
-        </h2>
-        <p className="text-gray-600 mb-8">
-          {error || "No pudimos cargar la información de este enlace."}
-        </p>
-        <Link
-            href="/"
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Ir al inicio
-          </Link>
-      </div>
-    </div>
-  );
-}
 
 export default function DownloadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -71,7 +49,7 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
     const fetchMetadata = async () => {
       setStatus("loading");
       try {
-        const response = await axios.get(`/api/metadata/${id}`);
+        const response = await axios.get(`/api/validate/${id}`); //Supongo, chequear cuando esten apis terminadas
         const data: FileMetadata = response.data;
         setMetadata(data);
         setStatus("ready");
@@ -123,10 +101,8 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
       setDownloading(false);
       
       if (err instanceof yup.ValidationError) {
-        // Error de validación (ej. contraseña corta) -> Se muestra en el modal
         setModalError(err.errors[0]);
       } else if (axios.isAxiosError(err)) {
-        // Error de la API (ej. contraseña incorrecta)
         let errorMsg = "Error al descargar";
         if (err.response?.data) {
           if (err.response.data instanceof Blob && err.response.data.type === 'application/json') {
@@ -144,7 +120,6 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
              errorMsg = "Contraseña incorrecta";
           }
         }
-        // ESTE es el cambio clave: usamos el modal para el error
         setModalError(errorMsg); 
       } else if (err instanceof Error) {
         setModalError(err.message);
@@ -158,19 +133,13 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
     return <LoadingComponent />;
   }
 
-  // Si la carga inicial falló, muestra el error fatal
   if (status === "error" || !metadata) {
     return <FatalErrorDisplay error={fatalError} />;
   }
 
-  // Si la carga fue exitosa, muestra la página de descarga
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       
-      {/* El Modal de Error ahora vive aquí.
-        Está oculto hasta que 'modalError' tenga contenido.
-        Se cierra limpiando el estado 'modalError'.
-      */}
       <ErrorModal 
         errorMessage={modalError} 
         onClose={() => setModalError("")} 
@@ -187,7 +156,6 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
         <DownloadForm
           password={password}
           setPassword={setPassword}
-          // Ya no pasamos props de error, el modal lo maneja
           downloading={downloading}
           onSubmit={handleDownload}
         />

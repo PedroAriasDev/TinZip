@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable, { File as FormidableFile } from 'formidable';
-import { createFileRecord } from '@/lib/server/FileServices';
+import { createFileRecord } from '@/lib/database/FileServices';
 import { IFileRecord } from '@/models/FileRecord';
 
 // --- PASO 1: Desactivar el bodyParser de Next.js ---

@@ -5,10 +5,6 @@ type ErrorModalProps = {
   onClose: () => void;
 };
 
-/**
- * Un componente modal que se superpone a la pantalla para mostrar
- * errores que se pueden reintentar (ej. "Contraseña incorrecta").
- */
 export function ErrorModal({ errorMessage, onClose }: ErrorModalProps) {
   if (!errorMessage) {
     return null;
