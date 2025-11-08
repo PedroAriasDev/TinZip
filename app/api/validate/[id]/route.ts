@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: { id: string } }  // params sí viene separado
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const searchParams = request.nextUrl.searchParams;
     const hashed_password = searchParams.get('hash');
 
