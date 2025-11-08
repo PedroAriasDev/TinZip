@@ -134,6 +134,7 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
 
   if (status === "idle") {
     return (
+      <div className="min-h-screen bg-background">
       <ErrorModal
         fullScreen
         title="Verifica tu descarga"
@@ -147,6 +148,7 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
         />
         {modalError && <p className="text-red-500 mt-2">{modalError}</p>}
       </ErrorModal>
+      </div>
     );
   }
 

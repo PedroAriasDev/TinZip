@@ -33,9 +33,8 @@ export default function MainUploadCard() {
   }
 
   return (
-    <div className="bg-white rounded-xl border shadow-lg p-6 max-w-xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Subir Archivos</h2>
-
+    <div className="bg-card rounded-xl border border-border shadow-lg p-6 max-w-xl mx-auto">
+      <h2 className="text-xl font-semibold mb-4 text-foreground">Subir Archivos</h2>
       <Formik
         initialValues={{
           origin: "el_big_tin@bigtin.tin",
@@ -75,14 +74,14 @@ export default function MainUploadCard() {
           <Form className="space-y-4">
             <div>
               <label className="block text-sm font-medium">Origen *</label>
-              <Field name="origin" type="text" className="w-full border rounded-lg p-2" />
-              <ErrorMessage name="origin" component="p" className="text-red-500 text-sm" />
+              <Field name="origin" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <ErrorMessage name="origin" component="p" className="text-destructive text-sm" />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Destinatarios</label>
-              <Field name="destinatarios" type="text" className="w-full border rounded-lg p-2" />
-              <ErrorMessage name="destinatarios" component="p" className="text-red-500 text-sm" />
+              <Field name="destinatarios" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <ErrorMessage name="destinatarios" component="p" className="text-destructive text-sm" />
             </div>
 
             <div>
@@ -97,7 +96,7 @@ export default function MainUploadCard() {
                 <button
                   type="button"
                   onClick={() => setFieldValue("password", generateSecurePassword(12))}
-                  className="bg-gray-200 text-gray-800 rounded-lg px-3 py-2 font-medium hover:bg-gray-300 transition"
+                  className="bg-gray-200 text-gray-700 rounded-lg px-3 py-2 font-medium hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                   Generar
                 </button>
@@ -107,16 +106,16 @@ export default function MainUploadCard() {
 
             <div>
               <label className="block text-sm font-medium">Título</label>
-              <Field name="title" type="text" className="w-full border rounded-lg p-2" />
+              <Field name="title" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Descripción</label>
-              <Field as="textarea" name="description" rows="3" className="w-full border rounded-lg p-2" />
+              <Field as="textarea" name="description" rows="3" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
             </div>
 
             <div className={`border-2 rounded-lg p-6 text-center
-              ${fileError ? "border-red-500 bg-red-50" : "border-blue-300 bg-blue-50 hover:bg-blue-100"}`}>
+              ${fileError ? "border-red-500 bg-red-50" : "border-green-600 bg-green-100 hover:bg-green-300 dark:border-green-600 dark:bg-green-200 dark:hover:bg-green-100"}`}>
               
               <input
                 type="file"
@@ -132,12 +131,12 @@ export default function MainUploadCard() {
                   setFileError(validation.valid ? "" : validation.message);
                 }}
               />
-              <label htmlFor="file-upload" className="cursor-pointer text-blue-700 font-medium">
+              <label htmlFor="file-upload" className="cursor-pointer text-green-900 dark:text-primary font-medium">
                 Arrastra o selecciona archivos
               </label>
 
               {files.length > 0 && (
-                <ul className="mt-3 text-sm text-gray-700 text-left">
+                <ul className="mt-3 text-sm text-muted-foreground text-left">
                   {files.map((f, i) => (
                     <li key={i}>• {f.name}</li>
                   ))}
@@ -155,8 +154,8 @@ export default function MainUploadCard() {
               className={`
                 w-full rounded-lg py-2 font-semibold transition
                 ${!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"}
+                  ? "bg-gray-200 text-gray-700 cursor-not-allowed dark:bg-gray-400 dark:text-gray-800"
+                  : "bg-green-400 text-card hover:bg-green-700"}
               `}
             >
               {status === "uploading" ? `Subiendo... ${progress}%` : "Comprimir y Enviar"}

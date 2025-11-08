@@ -18,8 +18,8 @@ export function ErrorModal({ errorMessage, onClose }: ErrorModalProps) {
       role="alertdialog"
       aria-modal="true"
     >
-      <div className="bg-white rounded-xl border-2 border-red-200 shadow-lg p-6 sm:p-8 max-w-sm w-full text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+      <div className="bg-card rounded-xl border-2 border-destructive shadow-lg p-6 sm:p-8 max-w-sm w-full text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-destructive/10 rounded-full mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export function ErrorModal({ errorMessage, onClose }: ErrorModalProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-8 h-8 text-red-600"
+            className="w-8 h-8 text-destructive"
           >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
@@ -36,16 +36,16 @@ export function ErrorModal({ errorMessage, onClose }: ErrorModalProps) {
           </svg>
         </div>
 
-        <h1 id="error-modal-title" className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 id="error-modal-title" className="text-2xl font-bold text-foreground mb-2">
           Error
         </h1>
 
-        <p className="text-gray-600 mb-6">{errorMessage}</p>
+        <p className="text-muted-foreground mb-6">{errorMessage}</p>
 
         <button
           onClick={onClose}
           autoFocus
-          className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-primary-foreground bg-primary rounded-lg hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
         >
           Intentar de nuevo
         </button>
