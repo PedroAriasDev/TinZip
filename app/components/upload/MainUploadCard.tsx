@@ -4,13 +4,33 @@ import { useState } from "react"
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import { hashPassword } from "@/utils/hashPassword"
 import { useUpload } from "@/hooks/useUpload"
-import { uploadSchema } from "@/utils/formValidation"
+import { uploadSchema, validateFiles } from "@/utils/formValidation"
 import { zipAndEncrypt } from "@/utils/zipAndEncrypt"
 import { generateSecurePassword } from "@/utils/generatePassword"
+import { SuccessCard } from "./SuccessCard";
+import { ErrorCard } from "./ErrorCard";
 
 export default function MainUploadCard() {
-  const [files, setFiles] = useState<File[]>([])
-  const { status, progress, downloadLink, uploadFiles } = useUpload()
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState<string>("");
+  const { status, progress, link, uploadFiles, resetStatus } = useUpload();
+  const [finalPassword, setFinalPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  
+  const handleReset = () => {
+    setFiles([]);
+    setFinalPassword("");
+    setErrorMessage("");
+    resetStatus();
+  };
+
+  if (status === "success") {
+    return <SuccessCard link={link} password={finalPassword} onClose={handleReset} />;
+  }
+
+  if (status === "error") {
+    return <ErrorCard message={errorMessage || "Ocurrió un error inesperado"} onClose={handleReset} />;
+  }
 
   return (
     <div className="bg-white rounded-xl border shadow-lg p-6 max-w-xl mx-auto">
@@ -22,7 +42,7 @@ export default function MainUploadCard() {
           destinatarios: "bruno_go_br_br@gmail.com",
           password: "",
           title: "Titulo por defecto",
-          description: "Albion Online es un MMORPG no lineal, donde escribes tu propia historia sin limitarte a seguir un camino prefijado. Explora un amplio mundo abierto con 5 biomas únicos; todo lo que hagas tendrá repercusiones en el mundo. Con la economía orientada al jugador de Albion, los jugadores crean prácticamente todo el equipo a partir de los recursos que consiguen. El equipo que llevas define quién eres; cambia de arma y armadura para pasar de caballero a mago, o juega como una mezcla de ambas clases. Aventúrate en el mundo abierto enfrentándote a los habitantes y criaturas de Albion, inicia expediciones o adéntrate en mazmorras donde encontrarás enemigos aún más difíciles. Enfréntate a otros jugadores en encuentros en el mundo abierto, lucha por territorios o por ciudades enteras en batallas tácticas, relájate en tu isla privada donde podrás construir un hogar, cultivar cosechas y criar animales. Únete a un gremio; todo es mejor cuando se trabaja en grupo. Adéntrate ya en el mundo de Albion y escribe tu propia historia. ",
+          description: "Albion Online es un MMORPG no lineal, donde escribes tu propia historia sin limitarte a seguir un camino prefijado.",
         }}
         validationSchema={uploadSchema}
         onSubmit={async (values, { resetForm }) => {
@@ -46,12 +66,12 @@ export default function MainUploadCard() {
             password_hash,
             file: new Blob([encryptedZip], { type: "application/octet-stream" }),
           })
-
+          setFinalPassword(values.password);
           resetForm()
           setFiles([])
         }}
       >
-        {({ isSubmitting, setFieldValue, values }) => (
+        {({ isSubmitting, isValid, dirty, setFieldValue, values }) => (
           <Form className="space-y-4">
             <div>
               <label className="block text-sm font-medium">Origen *</label>
@@ -95,14 +115,21 @@ export default function MainUploadCard() {
               <Field as="textarea" name="description" rows="3" className="w-full border rounded-lg p-2" />
             </div>
 
-            <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 hover:bg-blue-100">
+            <div className={`border-2 rounded-lg p-6 text-center
+              ${fileError ? "border-red-500 bg-red-50" : "border-blue-300 bg-blue-50 hover:bg-blue-100"}`}>
+              
               <input
                 type="file"
                 multiple
                 id="file-upload"
                 className="hidden"
                 onChange={(e) => {
-                  if (e.target.files) setFiles(Array.from(e.target.files))
+                  if (!e.target.files) return;
+                  const selected = Array.from(e.target.files);
+                  setFiles(selected);
+
+                  const validation = validateFiles(selected);
+                  setFileError(validation.valid ? "" : validation.message);
                 }}
               />
               <label htmlFor="file-upload" className="cursor-pointer text-blue-700 font-medium">
@@ -116,27 +143,24 @@ export default function MainUploadCard() {
                   ))}
                 </ul>
               )}
+
+              {fileError && (
+                <p className="text-red-500 text-sm mt-2">{fileError}</p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isSubmitting || status === "uploading"}
-              className="w-full bg-blue-600 text-white rounded-lg py-2 font-semibold hover:bg-blue-700 transition"
+              disabled={!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0}
+              className={`
+                w-full rounded-lg py-2 font-semibold transition
+                ${!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"}
+              `}
             >
               {status === "uploading" ? `Subiendo... ${progress}%` : "Comprimir y Enviar"}
             </button>
-
-            {status === "success" && (
-              <div className="bg-green-50 border border-green-300 rounded-lg p-3 mt-3">
-                <p className="text-green-700 text-sm mb-1">✅ Archivo enviado correctamente</p>
-                <p className="text-green-700 text-sm mb-1">{values.password}</p>
-                <a href={downloadLink} className="text-green-600 underline text-sm">{downloadLink}</a>
-              </div>
-            )}
-
-            {status === "error" && (
-              <p className="text-red-500 text-sm mt-3">❌ Error al subir el archivo. Intenta nuevamente.</p>
-            )}
           </Form>
         )}
       </Formik>

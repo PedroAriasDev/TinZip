@@ -29,6 +29,16 @@ export async function getRecordForPasswordCheck(id: string): Promise<IFileRecord
   await dbConnect();
   // Mongoose es lo suficientemente inteligente para saber que .select()
   // sigue devolviendo el mismo tipo de documento
-  const file = await FileRecord.findById(id).select('+passwordHash');
+  const file = await FileRecord.findById(id).select('passwordHash createdAt isExpired gridFsId');
   return file;
 }
+
+/**
+ * Busca un archivo por ID y devuelve el archivo
+ */
+export async function getRecordFile(id: string): Promise<IFileRecordDocument | null> {
+  await dbConnect();
+  const file = await FileRecord.findById(id).select('gridFsId createdAt'); // si le sacamos el createdAt no funciona, no se porque pero lo necesita
+  return file;
+}
+

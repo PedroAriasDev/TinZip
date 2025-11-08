@@ -1,171 +1,168 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import * as yup from "yup";
-import axios, { AxiosError } from "axios";
-import { hashPassword } from "@/utils/hashPassword";
-
-// Importar los nuevos componentes
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { DownloadForm } from "@/app/components/download/test/DownloadForm";
 import { LoadingComponent } from "@/app/components/download/LoadingComponent";
-import { ErrorModal } from "@/app/components/download/ErrorModal"; 
-import { ExpirationWarning } from "@/app/components/download/ExpirationWarning";
-import { FileMetadataDisplay } from "@/app/components/download/FileMetadataDisplay";
-import { DownloadForm } from "@/app/components/download/DownloadForm";
-import { FatalErrorDisplay } from "@/app/components/download/FatalErrorDisplay"; 
-
+import { SuccessModal } from "@/app/components/download/test/SuccessModal";
+import { ErrorModal } from "@/app/components/download/test/ErrorModal";
+import { ExpirationWarning } from "@/app/components/download/test/ExpirationWarning";
+import { InvalidPassword } from "@/app/components/download/test/InvalidPassword";
+import { FileNotFound } from "@/app/components/download/test/FileNotFound";
+import { use } from "react";
+import { hashPassword } from "@/utils/hashPassword";
+import { decryptZip } from "@/utils/decryptZip";
 
 type FileMetadata = {
   id: string;
   filename: string;
   size: number;
   createdAt: string;
-  expiresAt: string; // TODO FALTA ARREGLAR ESTO PORQUE MI EQUIPO NO SE DECIDEW Y YO NO ENTIENDO UNA PORONGA
+  expiresAt: string;
 };
-type DownloadStatus = "idle" | "loading" | "error" | "ready";
 
-const validationSchema = yup.object().shape({
-  password: yup
-    .string()
-    .trim()
-    .min(8, "La contraseña debe tener al menos 8 caracteres") 
-    .required("Por favor, ingresa la contraseña"),
-});
+type PageStatus =
+  | "idle"          // esperando a que ingrese contraseña
+  | "loading"       // cargando datos desde backend
+  | "success"       // descarga correcta
+  | "invalidPass"   // contraseña incorrecta
+  | "expired"       // archivo expirado
+  | "notFound"      // id inexistente
+  | "error";        // error fatal
 
 export default function DownloadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<DownloadStatus>("loading");
-  
-  // 'error' es para errores fatales (carga)
-  const [fatalError, setFatalError] = useState(""); 
-  // 'modalError' es para errores reintentables (contraseña)
-  const [modalError, setModalError] = useState(""); 
+  const router = useRouter();
 
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<PageStatus>("idle");
   const [metadata, setMetadata] = useState<FileMetadata | null>(null);
+  const [modalError, setModalError] = useState("");
   const [downloading, setDownloading] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-    const fetchMetadata = async () => {
-      setStatus("loading");
-      try {
-        const response = await axios.get(`/api/validate/${id}`); //Supongo, chequear cuando esten apis terminadas
-        const data: FileMetadata = response.data;
-        setMetadata(data);
-        setStatus("ready");
-      } catch (err) {
-        setStatus("error");
-        let errorMessage = "No se pudieron obtener los datos del archivo";
-        if (axios.isAxiosError(err)) {
-          const errorData = err.response?.data;
-          errorMessage = errorData?.error || "El enlace no es válido o ha expirado";
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
-        }
-        setFatalError(errorMessage);
-      }
-    };
-    fetchMetadata();
-  }, [id]);
-
-  const handleDownload = async () => {
+  const handleVerify = async () => {
     setDownloading(true);
-    setModalError(""); // Limpiar error modal anterior
+    setModalError("");
 
     try {
-      await validationSchema.validate({ password }, { abortEarly: false });
-      const password_hash = await hashPassword(password);
+      // Hash de contraseña
+      const password_hash = await hashPassword(password)
+      const res = await fetch(`/api/validate/${id}?hash=${password_hash}`);
+      const data = await res.json();
 
-      const response = await axios.get(`/api/download/${id}`, {
-        params: { password_hash },
-        responseType: 'blob',
-      });
-
-      const blob = response.data;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = metadata?.filename || 'archivo.zip';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      setTimeout(() => {
-        setPassword("");
-        setDownloading(false);
-      }, 1500);
-
-    } catch (err) {
-      setDownloading(false);
-      
-      if (err instanceof yup.ValidationError) {
-        setModalError(err.errors[0]);
-      } else if (axios.isAxiosError(err)) {
-        let errorMsg = "Error al descargar";
-        if (err.response?.data) {
-          if (err.response.data instanceof Blob && err.response.data.type === 'application/json') {
-            try {
-              const errorJsonText = await err.response.data.text();
-              const errorJson = JSON.parse(errorJsonText);
-              errorMsg = errorJson.error || errorMsg;
-            } catch (e) {
-              if (err.response.status === 401) errorMsg = "Contraseña incorrecta";
-              else if (err.response.status === 404) errorMsg = "Archivo no encontrado o expirado";
-            }
-          } else if (err.response.data.error) {
-             errorMsg = err.response.data.error;
-          } else if (err.response.status === 401) {
-             errorMsg = "Contraseña incorrecta";
-          }
-        }
-        setModalError(errorMsg); 
-      } else if (err instanceof Error) {
-        setModalError(err.message);
-      } else {
-        setModalError("Un error desconocido ocurrió al descargar");
+      if (!res.ok) {
+        // Manejo de distintos errores
+        if (res.status === 401) setStatus("invalidPass");
+        else if (res.status === 404) setStatus("notFound");
+        else if (res.status === 410) setStatus("expired");
+        else setStatus("error");
+        return;
       }
+
+      // Éxito
+      setMetadata(data.file);
+      setStatus("success");
+    } catch (err: any) {
+      console.error(err);
+      setStatus("error");
+    } finally {
+      setDownloading(false);
     }
   };
 
-  if (status === "loading") {
-    return <LoadingComponent />;
-  }
+  const getAndDownloadFile = async () => {
+    setDownloading(true);
+    try {
+      // Hash de contraseña
+      const password_hash = await hashPassword(password);
+      const res = await fetch(`/api/download/${id}?hash=${password_hash}`);
 
-  if (status === "error" || !metadata) {
-    return <FatalErrorDisplay error={fatalError} />;
-  }
+      if (!res.ok) {
+        // ... (tu manejo de errores 401, 404, etc.)
+        if (res.status === 401) setStatus("invalidPass");
+        else if (res.status === 404) setStatus("notFound");
+        else if (res.status === 410) setStatus("expired");
+        else setStatus("error");
+        return;
+      }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      // --- ¡AQUÍ EMPIEZA LA MAGIA! ---
+
+      // 3. Obtenemos el blob ENCRIPTADO
+      const encryptedBlob = await res.blob();
       
-      <ErrorModal 
-        errorMessage={modalError} 
-        onClose={() => setModalError("")} 
-      />
+      // 4. Lo convertimos a un ArrayBuffer
+      const encryptedBuffer = await encryptedBlob.arrayBuffer();
 
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3 text-balance">Descargar Archivos Seguros</h1>
-        </div>
-        
-        
-        <FileMetadataDisplay metadata={metadata} />
+      // 5. ¡Lo desciframos! (Usando la contraseña del state, NO el hash)
+      const decryptedBuffer = await decryptZip(encryptedBuffer, password);
 
+      // 6. Creamos un NUEVO blob, pero esta vez con el .zip real (descifrado)
+      const decryptedZipBlob = new Blob([decryptedBuffer], { type: "application/zip" });
+      
+      // 7. Creamos la URL de descarga para el blob DESCIFRADO
+      const url = window.URL.createObjectURL(decryptedZipBlob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = metadata?.filename || 'archivo.zip'; // Usa el nombre de los metadatos
+      document.body.appendChild(a);
+      a.click();
+
+      // 8. Limpieza
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // --- FIN DE LA MAGIA ---
+      
+    } catch (err: any) {
+      console.error(err);
+      
+      // 9. Captura el error de descifrado
+      if (err.message.includes("Contraseña incorrecta")) {
+        setStatus("invalidPass");
+      } else {
+        setStatus("error");
+      }
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  // Render condicional según status
+  if (status === "loading") return <LoadingComponent />;
+
+  if (status === "idle") {
+    return (
+      <ErrorModal
+        fullScreen
+        title="Verifica tu descarga"
+        description="Ingresa la contraseña para continuar con la descarga"
+      >
         <DownloadForm
           password={password}
           setPassword={setPassword}
           downloading={downloading}
-          onSubmit={handleDownload}
+          onSubmit={handleVerify}
         />
+        {modalError && <p className="text-red-500 mt-2">{modalError}</p>}
+      </ErrorModal>
+    );
+  }
 
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-900">
-            <span className="font-semibold">Nota de seguridad:</span> Este archivo está cifrado...
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  if (status === "success") {
+    return (
+      <SuccessModal
+        metadata={metadata!}
+        onClose={() => router.push("/")}
+        onDownload={() => getAndDownloadFile()}
+      />
+    );
+  }
+
+  if (status === "invalidPass") return <InvalidPassword onRetry={() => setStatus("idle")} />;
+  if (status === "expired") return <ExpirationWarning onRetry={() => setStatus("idle")} />;
+  if (status === "notFound") return <FileNotFound onRetry={() => setStatus("idle")} />;
+
+  return <ErrorModal title="Error" description="Ocurrió un error inesperado" />;
 }

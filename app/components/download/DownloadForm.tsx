@@ -21,7 +21,7 @@ export function DownloadForm({
           <svg /* Icono de candado */ >...</svg>
           <h2 className="text-xl font-semibold text-gray-900">Descargar Archivo</h2>
         </div>
-        <p className="text-sm text-gray-600 mt-1">Ingresa la contraseña para acceder al archivo cifrado</p>
+        <p className="text-sm text-gray-600 mt-1">Ingresa la contraseña para descargar el archivo</p>
       </div>
 
       <div className="p-6">
@@ -43,7 +43,6 @@ export function DownloadForm({
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                // Ya no limpiamos el error aquí, el modal es independiente
               }}
               disabled={downloading}
               className="block w-full h-12 px-4 text-gray-900 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -51,10 +50,6 @@ export function DownloadForm({
             />
             <p className="text-sm text-gray-500">Usa la contraseña proporcionada por el remitente</p>
           </div>
-
-          {/* El bloque de error que estaba aquí fue removido.
-            El modal en page.tsx ahora se encarga de esto.
-          */}
 
           <button
             type="submit"

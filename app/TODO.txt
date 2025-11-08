@@ -67,13 +67,13 @@
 
   - GET /api/validate/[id] — validar contraseña / obtener metadata
     - request: { id, password_hash }
-    - response: { result: "ok" | "expired" | "invalid" | "error", file }
+    - response: { result: "valid" | "expired" | "invalid" | "error", file }
 
     si el archivo existe:
       si la contrasena es valida
         si el link no esta vencido: devuelvo ok y el file en file
-        si el link esta vencido: devuelvo ok y en file none
-      si la contrasena es invalida devuelvo invalida
+        si el link esta vencido: devuelvo expired
+      si la contrasena es invalida devuelvo invalid
     si el archivo no existe devuelvo invalid
 
   Consigna y requisitos técnicos

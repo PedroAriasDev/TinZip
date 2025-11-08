@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IFileRecord {
-  originalFilename: string;
   ownerEmail: string;
   recipientEmails?: string[];
   fileSizeInBytes: number;
-  title?: string;
+  title: string;
   description?: string;
   passwordHash: string;
+  gridFsId: mongoose.Types.ObjectId;
 }
 
 /**
@@ -21,10 +21,6 @@ export interface IFileRecordDocument extends IFileRecord, Document {
 }
 
 const FileRecordSchema: Schema<IFileRecordDocument> = new Schema({
-  originalFilename: {
-    type: String,
-    required: true,
-  },
   ownerEmail: {
     type: String,
     required: true,
@@ -47,6 +43,10 @@ const FileRecordSchema: Schema<IFileRecordDocument> = new Schema({
     type: String,
     required: true,
     select: false, // Ocultar por defecto en las consultas
+  },
+  gridFsId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
   },
 }, {
   // Añade createdAt y updatedAt

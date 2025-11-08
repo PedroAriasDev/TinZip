@@ -1,16 +1,9 @@
-import React from "react";
 import { formatFileSize} from "@/utils/formatFileSize";
 import { formatDate } from "@/utils/formatDate";
-
-type FileMetadata = {
-  filename: string;
-  size: number;
-  createdAt: string;
-  expiresAt: string;
-};
+import { FileRecordInfoApiResponse } from "@/app/api/validate/[id]/route";
 
 type FileMetadataDisplayProps = {
-  metadata: FileMetadata;
+  metadata: FileRecordInfoApiResponse;
 };
 
 export function FileMetadataDisplay({ metadata }: FileMetadataDisplayProps) {
@@ -25,11 +18,11 @@ export function FileMetadataDisplay({ metadata }: FileMetadataDisplayProps) {
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start py-3 border-b border-gray-100">
           <span className="text-sm font-medium text-gray-600">Nombre del archivo</span>
-          <span className="text-sm text-gray-900 font-semibold text-right ml-4">{metadata.filename}</span>
+          <span className="text-sm text-gray-900 font-semibold text-right ml-4">{metadata.title}</span>
         </div>
         <div className="flex justify-between items-start py-3 border-b border-gray-100">
           <span className="text-sm font-medium text-gray-600">Tamaño</span>
-          <span className="text-sm text-gray-900 font-semibold">{formatFileSize(metadata.size)}</span>
+          <span className="text-sm text-gray-900 font-semibold">{formatFileSize(metadata.fileSizeInBytes)}</span>
         </div>
         <div className="flex justify-between items-start py-3 border-b border-gray-100">
           <span className="text-sm font-medium text-gray-600">Fecha de creación</span>

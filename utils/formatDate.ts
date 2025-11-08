@@ -1,3 +1,4 @@
+// Tu función en utils/formatDate.ts
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("es-ES", {

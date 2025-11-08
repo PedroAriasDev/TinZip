@@ -7,7 +7,13 @@ import { UploadRequestData, UploadResponse } from "@/types/upload"
 export function useUpload() {
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle")
   const [progress, setProgress] = useState<number>(0)
-  const [downloadLink, setDownloadLink] = useState<string>("")
+  const [link, setLink] = useState<string>("")
+
+  const resetStatus = () => {
+    setStatus("idle");
+    setProgress(0);
+    setLink("");
+  };
 
   const uploadFiles = async (payload: UploadRequestData) => {
     try {
@@ -18,7 +24,7 @@ export function useUpload() {
 
       setStatus("success")
       setProgress(100)
-      setDownloadLink(response.downloadLink)
+      setLink(response.link)
       return response
     } catch (error) {
       console.error("Error al subir archivos:", error)
@@ -27,5 +33,5 @@ export function useUpload() {
     }
   }
 
-  return { status, progress, downloadLink, uploadFiles }
+  return { status, progress, link, uploadFiles, resetStatus }
 }
