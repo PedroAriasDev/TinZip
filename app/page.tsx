@@ -1,9 +1,8 @@
 "use client"
 
-import Header from "./components/uploadFiles/Header"
-import MainUploadCard from "./components/uploadFiles/MainUploadCard"
-import SecurityInfoCards from "./components/uploadFiles/SecurityInfoCards"
-
+import Header from "@/app/components/upload/Header"
+import MainUploadCard from "@/app/components/upload/MainUploadCard"
+import SecurityInfoCards from "@/app/components/upload/SecurityInfoCards"
 
 export default function FileUploadPage() {
   

@@ -124,3 +124,40 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.file-metadata-card {
+  @apply bg-white rounded-xl border-2 border-gray-200 shadow-lg overflow-hidden mb-6;
+}
+
+.card-header {
+  @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4;
+}
+
+.header-content {
+  @apply flex items-center gap-2;
+}
+
+.card-title {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.card-body {
+  @apply p-6 space-y-4;
+}
+
+.info-row {
+  @apply flex justify-between items-start py-3 border-b border-gray-100;
+}
+
+.info-row.no-border {
+  @apply border-b-0;
+}
+
+.info-label {
+  @apply text-sm font-medium text-gray-600;
+}
+
+.info-value {
+  @apply text-sm text-gray-900 font-semibold text-right ml-4;
+}

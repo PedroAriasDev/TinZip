@@ -1,0 +1,71 @@
+import React from "react";
+
+type ErrorModalProps = {
+  /** El mensaje de error a mostrar. Si está vacío, el modal no se renderiza. */
+  errorMessage: string;
+  /** Función que se llama cuando el usuario cierra el modal. */
+  onClose: () => void;
+};
+
+/**
+ * Un componente modal que se superpone a la pantalla para mostrar
+ * errores que se pueden reintentar (ej. "Contraseña incorrecta").
+ */
+export function ErrorModal({ errorMessage, onClose }: ErrorModalProps) {
+  // No renderizar nada si no hay mensaje de error.
+  // El estado "abierto/cerrado" se maneja por la presencia del errorMessage.
+  if (!errorMessage) {
+    return null;
+  }
+
+  return (
+    // Fondo (Overlay)
+    // Se usa 'style' para la opacidad del fondo para evitar conflictos con Tailwind
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      aria-labelledby="error-modal-title"
+      role="alertdialog"
+      aria-modal="true"
+    >
+      {/* Contenedor del Modal */}
+      <div className="bg-white rounded-xl border-2 border-red-200 shadow-lg p-6 sm:p-8 max-w-sm w-full text-center">
+        {/* Icono de Error */}
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-8 h-8 text-red-600"
+          >
+            {/* Este es un ícono de "alerta" */}
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+
+        {/* Título */}
+        <h1 id="error-modal-title" className="text-2xl font-bold text-gray-900 mb-2">
+          Error
+        </h1>
+
+        {/* Mensaje de Error (el que viene de las props) */}
+        <p className="text-gray-600 mb-6">{errorMessage}</p>
+
+        {/* Botón de Cierre / Reintento */}
+        <button
+          onClick={onClose}
+          autoFocus
+          className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          Intentar de nuevo
+        </button>
+      </div>
+    </div>
+  );
+}
