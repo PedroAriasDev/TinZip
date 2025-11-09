@@ -4,12 +4,17 @@
 
 :root {
   /* --- TEMA CLARO: Fondo Blanco, Acentos Verde Pastel --- */
-  --background: oklch(1 0 0); /* Blanco */
+  --background: oklch(1 0 0 / 0.7); /* Blanco */
   --foreground: oklch(0.15 0.02 250);
-  --card: oklch(1 0 0);
+  --card: oklch(1 0 0 / 0.7);
   --card-foreground: oklch(0.15 0.02 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.02 250);
+
+   /* Colores para el fondo desenfocado (Modo Claro) */
+  --blur-color-1: oklch(0.85 0.15 150); /* Verde Pastel */
+  --blur-color-2: oklch(0.9 0.1 180);  /* Verde Agua */
+  --blur-color-3: oklch(0.95 0.05 250); /* Azul Cielo Pálido */
   
   --primary: oklch(0.85 0.15 150); /* Verde Pastel */
   --primary-foreground: oklch(0.15 0.02 150); /* Texto oscuro para el verde */
@@ -46,13 +51,17 @@
 
 .dark {
   /* --- TEMA OSCURO: Fondo Azul Oscuro, Acentos Verde Oscuro --- */
-  --background: oklch(0.1 0.03 250); /* Azul Oscuro */
+  --background: oklch(0.1 0.03 250 / 0.75 ); /* Azul Oscuro */
   --foreground: oklch(0.97 0.01 250);
-  --card: oklch(0.15 0.03 250);
+  --card: oklch(0.15 0.03 250 / 0.75);
   --card-foreground: oklch(0.97 0.01 250);
   --popover: oklch(0.1 0.03 250);
   --popover-foreground: oklch(0.97 0.01 250);
   
+  --blur-color-1: oklch(0.4 0.18 150); /* Verde Oscuro */
+  --blur-color-2: oklch(0.3 0.1 260);  /* Púrpura/Azul noche */
+  --blur-color-3: oklch(0.2 0.05 250); /* Azul noche profundo */
+
   --primary: oklch(0.6 0.18 150); /* Verde Oscuro */
   --primary-foreground: oklch(0.99 0.005 150); /* Texto claro para el verde */
 
@@ -85,8 +94,16 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Animación de movimiento suave para el fondo */
+@keyframes animated-landscape {
+  0% { transform: translate(-10%, -10%) scale(1.5); }
+  25% { transform: translate(10%, -10%) scale(1.3); }
+  50% { transform: translate(10%, 10%) scale(1.5); }
+  75% { transform: translate(-10%, 10%) scale(1.3); }
+  100% { transform: translate(-10%, -10%) scale(1.5); }
+}
+
 @theme inline {
-  /* ... (Esta sección @theme no necesita cambios) ... */
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
@@ -132,18 +149,66 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+   /* El body en sí tiene un color de fondo SÓLIDO de fallback */
+    @apply bg-white dark:bg-[oklch(0.1_0.03_250)] text-foreground transition-colors duration-300;
+    position: relative;
+    z-index: 1;
   }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* Ponerlo detrás de todo */
+    
+    /* Gradientes radiales para el efecto "paisaje" */
+    background-image: 
+      radial-gradient(at 20% 20%, oklch(var(--blur-color-1) / 0.5) 0%, transparent 50%),
+      radial-gradient(at 80% 20%, oklch(var(--blur-color-2) / 0.5) 0%, transparent 50%),
+      radial-gradient(at 50% 80%, oklch(var(--blur-color-3) / 0.5) 0%, transparent 50%);
+
+    /* El desenfoque extremo */
+    filter: blur(100px);
+    
+    /* La animación */
+    animation: animated-landscape 30s ease-in-out infinite;
+    transition: background-image 0.5s ease-in-out;
+  }
+
   /* --- Fondo de estrellas para Dark Mode --- */
-  .dark body {
+  .dark body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* Detrás del contenido, pero sobre el blur */
     background-image: radial-gradient(oklch(0.9 0.01 250 / 0.4) 0.5px, transparent 0.5px);
     background-size: 35px 35px;
     background-position: 0 0, 17.5px 17.5px;
+  }
+
+  /* Clases de tus componentes (ahora usan bg-card que es traslúcido) */
+  .file-metadata-card {
+    @apply bg-card rounded-xl border-2 border-border/50 shadow-lg overflow-hidden mb-6;
+    /* Añadimos backdrop-blur para el efecto "vidrio esmerilado" */
+    backdrop-filter: blur(10px);
+  }
+  .card-header {
+    @apply bg-secondary/50 border-b border-border/50 px-6 py-4;
   }
 }
 
 /* ... (Tus clases personalizadas como .file-metadata-card) ... */
 /* Idealmente, estas también deberían usar variables: */
+.bg-card {
+  @apply bg-card;
+  backdrop-filter: blur(10px); /* Aplicar a todas las tarjetas */
+}
+.bg-secondary {
+  @apply bg-secondary;
+}
+.text-foreground {
+  @apply text-foreground;
+}
 .file-metadata-card {
   @apply bg-card rounded-xl border-2 border-border shadow-lg overflow-hidden mb-6;
 }

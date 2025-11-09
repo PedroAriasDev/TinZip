@@ -146,7 +146,7 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
           downloading={downloading}
           onSubmit={handleVerify}
         />
-        {modalError && <p className="text-red-500 mt-2">{modalError}</p>}
+        {modalError && <p className="text-destructive text-sm mt-2">{modalError}</p>}
       </ErrorModal>
       </div>
     );
@@ -154,11 +154,15 @@ export default function DownloadPage({ params }: { params: Promise<{ id: string 
 
   if (status === "success") {
     return (
+      <div className="min-h-screen w-full p-4 md:p-12 flex flex-col items-center 
+        bg-gradient-to-b from-primary/20 via-background to-green-100 
+        dark:bg-gradient-to-b dark:from-background dark:to-primary/20">
       <SuccessModal
         metadata={metadata!}
         onClose={() => router.push("/")}
         onDownload={() => getAndDownloadFile()}
       />
+      </div>
     );
   }
 

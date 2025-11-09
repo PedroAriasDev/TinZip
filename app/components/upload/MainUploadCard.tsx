@@ -91,17 +91,17 @@ export default function MainUploadCard() {
                   name="password"
                   type="text"
                   value={values.password}
-                  className="w-full border rounded-lg p-2"
+                  className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring"
                 />
                 <button
                   type="button"
                   onClick={() => setFieldValue("password", generateSecurePassword(12))}
-                  className="bg-gray-200 text-gray-700 rounded-lg px-3 py-2 font-medium hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
+                  className="bg-secondary text-muted-foreground rounded-lg px-3 py-2 font-medium hover:bg-input transition"
                 >
                   Generar
                 </button>
               </div>
-              <ErrorMessage name="password" component="p" className="text-red-500 text-sm" />
+              <ErrorMessage name="password" component="p" className="text-destructive text-sm" />
             </div>
 
             <div>
@@ -114,9 +114,11 @@ export default function MainUploadCard() {
               <Field as="textarea" name="description" rows="3" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
             </div>
 
-            <div className={`border-2 rounded-lg p-6 text-center
-              ${fileError ? "border-red-500 bg-red-50" : "border-green-600 bg-green-100 hover:bg-green-300 dark:border-green-600 dark:bg-green-200 dark:hover:bg-green-100"}`}>
-              
+            <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors
+              ${fileError 
+                ? "border-destructive bg-destructive/20" // Estado de Error
+                : "border-primary/40 bg-secondary hover:bg-input" // Estado Normal/Válido
+              }`}>
               <input
                 type="file"
                 multiple
@@ -131,7 +133,9 @@ export default function MainUploadCard() {
                   setFileError(validation.valid ? "" : validation.message);
                 }}
               />
-              <label htmlFor="file-upload" className="cursor-pointer text-green-900 dark:text-primary font-medium">
+              <label htmlFor="file-upload" className={`cursor-pointer font-medium ${
+                fileError ? "text-destructive" : "text-primary" // Color de texto dinámico
+              }`}>
                 Arrastra o selecciona archivos
               </label>
 
@@ -144,7 +148,7 @@ export default function MainUploadCard() {
               )}
 
               {fileError && (
-                <p className="text-red-500 text-sm mt-2">{fileError}</p>
+                <p className="text-destructive text-sm mt-2">{fileError}</p>
               )}
             </div>
 
@@ -154,8 +158,8 @@ export default function MainUploadCard() {
               className={`
                 w-full rounded-lg py-2 font-semibold transition
                 ${!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0
-                  ? "bg-gray-200 text-gray-700 cursor-not-allowed dark:bg-gray-400 dark:text-gray-800"
-                  : "bg-green-400 text-card hover:bg-green-700"}
+                  ? "bg-muted text-muted-foreground cursor-not-allowed" // Estado Deshabilitado
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"} {/* Estado Habilitado */}
               `}
             >
               {status === "uploading" ? `Subiendo... ${progress}%` : "Comprimir y Enviar"}

@@ -8,31 +8,31 @@ type FileMetadataDisplayProps = {
 
 export function FileMetadataDisplay({ metadata }: FileMetadataDisplayProps) {
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 shadow-lg overflow-hidden mb-6">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center gap-2">
+    <div className="file-metadata-card">
+      <div className="card-header">
+        <div className="header-content">
           <svg /* Icono de archivo */ >...</svg>
-          <h2 className="text-xl font-semibold text-gray-900">Información del Archivo</h2>
+          <h2 className="card-title">Información del Archivo</h2>
         </div>
       </div>
-      <div className="p-6 space-y-4">
-        <div className="flex justify-between items-start py-3 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-600">Nombre del archivo</span>
-          <span className="text-sm text-gray-900 font-semibold text-right ml-4">{metadata.title}</span>
+      <div className="card-body">
+        <div className="info-row">
+          <span className="info-label">Nombre del archivo</span>
+          <span className="info-value">{metadata.title}</span>
         </div>
-        <div className="flex justify-between items-start py-3 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-600">Tamaño</span>
-          <span className="text-sm text-gray-900 font-semibold">{formatFileSize(metadata.fileSizeInBytes)}</span>
+        <div className="info-row">
+          <span className="info-label">Tamaño</span>
+          <span className="info-value">{formatFileSize(metadata.fileSizeInBytes)}</span>
         </div>
-        <div className="flex justify-between items-start py-3 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-600">Fecha de creación</span>
-          <span className="text-sm text-gray-900 font-semibold text-right ml-4">
+        <div className="info-row">
+          <span className="info-label">Fecha de creación</span>
+          <span className="info-value">
             {formatDate(metadata.createdAt)}
           </span>
         </div>
-        <div className="flex justify-between items-start py-3">
-          <span className="text-sm font-medium text-gray-600">Expira el</span>
-          <span className="text-sm text-gray-900 font-semibold text-right ml-4">
+        <div className="info-row no-border">
+          <span className="info-label">Expira el</span>
+          <span className="info-value">
             {formatDate(metadata.expiresAt)}
           </span>
         </div>

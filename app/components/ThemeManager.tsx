@@ -10,7 +10,6 @@ export function ThemeManager({ children }: { children: React.ReactNode }) {
       const currentHour = new Date().getHours();
       const htmlElement = document.documentElement;
 
-      // Lógica de "medianoche" (ej. de 00:00 a 6:00 AM)
       if (currentHour >= 19 || currentHour < 6) {
         htmlElement.classList.add("dark");
       } else {

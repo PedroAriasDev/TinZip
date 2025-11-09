@@ -15,13 +15,12 @@ export function DownloadForm({
   onSubmit,
 }: DownloadFormProps) {
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4">
+      <div className="bg-card rounded-xl border-2 border-border shadow-lg overflow-hidden">      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 px-6 py-4">
         <div className="flex items-center gap-2">
           <svg /* Icono de candado */ >...</svg>
-          <h2 className="text-xl font-semibold text-gray-900">Descargar Archivo</h2>
+          <h2 className="text-xl font-semibold text-foreground">Descargar Archivo</h2>
         </div>
-        <p className="text-sm text-gray-600 mt-1">Ingresa la contraseña para descargar el archivo</p>
+        <p className="text-sm text-muted-foreground mt-1">Ingresa la contraseña para descargar el archivo</p>
       </div>
 
       <div className="p-6">
@@ -33,7 +32,7 @@ export function DownloadForm({
           className="space-y-6"
         >
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-base font-semibold text-gray-900">
+            <label htmlFor="password" className="block text-base font-semibold text-foreground">
               Contraseña
             </label>
             <input
@@ -45,16 +44,16 @@ export function DownloadForm({
                 setPassword(e.target.value);
               }}
               disabled={downloading}
-              className="block w-full h-12 px-4 text-gray-900 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="block w-full h-12 px-4 text-foreground border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               autoFocus
             />
-            <p className="text-sm text-gray-500">Usa la contraseña proporcionada por el remitente</p>
+            <p className="text-sm text-muted-foreground">Usa la contraseña proporcionada por el remitente</p>
           </div>
 
           <button
             type="submit"
             disabled={!password.trim() || downloading}
-            className="w-full h-12 flex items-center justify-center gap-2 px-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full h-12 flex items-center justify-center gap-2 px-4 text-base font-semibold text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {downloading ? (
               <>

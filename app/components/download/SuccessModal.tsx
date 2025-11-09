@@ -28,10 +28,10 @@ export function SuccessModal({ show, onClose, onRedirect }: SuccessModalProps) {
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6 sm:p-8 max-w-sm w-full text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+      <div className="bg-card rounded-xl border border-border shadow-lg p-6 sm:p-8 max-w-sm w-full text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
           <svg
-            className="w-8 h-8 text-green-600"
+            className="w-8 h-8 text-primary"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -51,25 +51,25 @@ export function SuccessModal({ show, onClose, onRedirect }: SuccessModalProps) {
           </svg>
         </div>
 
-        <h1 id="success-modal-title" className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 id="success-modal-title" className="text-2xl font-bold text-foreground mb-2">
           ¡Descarga Completa!
         </h1>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           ¿Te gustaría enviar vos algún archivo comprimido?
         </p>
 
         <div className="space-y-3">
           <button
             onClick={onRedirect}
-            className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
           >
             Ir a Subir Archivos
           </button>
           <button
             onClick={onClose}
             autoFocus
-            className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors"
+            className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-muted-foreground bg-secondary rounded-lg border border-border hover:bg-input focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
           >
             Cerrar
           </button>

@@ -1,6 +1,7 @@
 "use client"
 import React, { useCallback } from "react"
 
+
 interface FileDropzoneProps {
   files: File[]
   setFiles: React.Dispatch<React.SetStateAction<File[]>>
@@ -23,7 +24,7 @@ export default function FileDropzone({ files, setFiles }: FileDropzoneProps) {
     <div
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
-      className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 hover:bg-blue-100 transition-colors"
+      className="border-2 border-dashed border-primary/40 rounded-lg p-6 text-center bg-secondary hover:bg-accent transition-colors"
     >
       <input
         type="file"
@@ -32,11 +33,11 @@ export default function FileDropzone({ files, setFiles }: FileDropzoneProps) {
         onChange={handleFileChange}
         className="hidden"
       />
-      <label htmlFor="file-upload" className="cursor-pointer text-blue-700 font-medium">
+      <label htmlFor="file-upload" className="cursor-pointer text-primary font-medium">
         Arrastra o selecciona archivos
       </label>
       {files.length > 0 && (
-        <ul className="mt-3 text-sm text-gray-700 text-left">
+        <ul className="mt-3 text-sm text-muted-foreground text-left">
           {files.map((f, i) => (
             <li key={i}>• {f.name}</li>
           ))}

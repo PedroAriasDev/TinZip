@@ -5,12 +5,12 @@ type ErrorCardProps = {
 
 export function ErrorCard({ message, onClose }: ErrorCardProps) {
   return (
-    <div className="bg-red-200 border border-red-800 rounded-lg p-6 text-center">
-      <p className="text-red-700 font-semibold mb-2">❌ Error al subir el archivo</p>
-      <p className="text-red-700 mb-4">{message}</p>
+    <div className="bg-destructive/20 border border-destructive/40 rounded-lg p-6 text-center">
+      <p className="text-destructive font-semibold mb-2">❌ Error al subir el archivo</p>
+      <p className="text-destructive/90 mb-4">{message}</p>
       <button
         onClick={onClose}
-        className="bg-red-600 text-white rounded-lg px-4 py-2 hover:bg-red-700 transition"
+        className="bg-destructive text-destructive-foreground rounded-lg px-4 py-2 hover:bg-destructive/90 transition"
       >
         Reintentar
       </button>
