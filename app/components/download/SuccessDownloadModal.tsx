@@ -5,9 +5,7 @@ import React from "react";
 type SuccessModalProps = {
   /** Si se debe mostrar el modal o no. */
   show: boolean;
-  /** Función que se llama cuando el usuario cierra el modal (botón "Cerrar"). */
-  onClose: () => void;
-  /** Función que se llama cuando el usuario quiere subir (botón "Ir a Subir Archivos"). */
+  /** Función que se llama cuando el usuario quiere subir (botón "Ir a pagina principal"). */
   onRedirect: () => void;
 };
 
@@ -15,7 +13,7 @@ type SuccessModalProps = {
  * Un modal que aparece después de una descarga exitosa,
  * invitando al usuario a subir sus propios archivos.
  */
-export function SuccessModal({ show, onClose, onRedirect }: SuccessModalProps) {
+export function SuccessDownloadModal({ show, onRedirect }: SuccessModalProps) {
   if (!show) {
     return null;
   }
@@ -64,14 +62,7 @@ export function SuccessModal({ show, onClose, onRedirect }: SuccessModalProps) {
             onClick={onRedirect}
             className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
           >
-            Ir a Subir Archivos
-          </button>
-          <button
-            onClick={onClose}
-            autoFocus
-            className="w-full h-11 flex items-center justify-center px-4 text-base font-semibold text-muted-foreground bg-secondary rounded-lg border border-border hover:bg-input focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
-          >
-            Cerrar
+            Ir a la pagina principal
           </button>
         </div>
       </div>

@@ -8,7 +8,7 @@ interface Props {
   onSubmit: () => void;
 }
 
-export function DownloadForm({ password, setPassword, downloading, onSubmit }: Props) {
+export function PasswordForm({ password, setPassword, downloading, onSubmit }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <input

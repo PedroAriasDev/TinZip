@@ -1,14 +1,14 @@
 "use client";
-import React from "react";
 import { FileMetadataDisplay } from "@/app/components/download/FileMetadataDisplay";
+import { FileRecordInfoApiResponse } from "@/app/api/validate/[id]/route";
 
 interface Props {
-  metadata: any;
+  metadata: FileRecordInfoApiResponse;
   onClose: () => void;
   onDownload: () => void
 }
 
-export function SuccessModal({ metadata, onClose, onDownload }: Props) {
+export function DownloadModal({ metadata, onClose, onDownload }: Props) {
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center p-4">
       <div className="bg-white rounded-xl p-6 max-w-md w-full">
