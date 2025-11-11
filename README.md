@@ -11,7 +11,7 @@ Se genera un enlace de descarga único protegido por contraseña que expira desp
 * **Protección por Contraseña:** Cada subida requiere una contraseña (mín. 8 caracteres).
 * **Compresión ZIP:** Múltiples archivos se agrupan y comprimen en un solo `.zip` antes de cifrarse.
 * **Enlaces Temporales:** Todos los enlaces de descarga expiran automáticamente 72 horas después de su creación (lógica manejada por MongoDB).
-* **Persistencia con MongoDB:** Utiliza Mongoose para definir esquemas y conectarse a una base de datos MongoDB (local o Atlas) para una persistencia escalable.
+* **Persistencia con MongoDB:** Utiliza Mongoose para definir esquemas y conectarse a una base de datos MongoDB (Atlas) para una persistencia escalable.
 * **Tema Dinámico (Claro/Oscuro):**
     * **Modo Claro (06:00 - 18:59):** Tema blanco con acentos en verde pastel.
     * **Modo Oscuro (19:00 - 05:59):** Tema azul oscuro con un fondo de estrellas y acentos en verde oscuro.
@@ -33,7 +33,7 @@ El proceso está diseñado para ser simple y seguro, dividido en dos flujos prin
     b.  Cifra ese `.zip` usando la `Web Crypto API` (AES-GCM) y la contraseña proporcionada.
     c.  Genera un `hash` (SHA-256) de la contraseña para la verificación (la contraseña real nunca se envía).
 4.  **Subir:** El navegador sube el **archivo .zip cifrado** junto con los metadatos y el *hash* de la contraseña a la API (`POST /api/upload`).
-5.  **Obtener Enlace:** El servidor guarda el archivo cifrado en la carpeta `/uploads`, añade una nueva entrada a la colección de MongoDB con los metadatos y devuelve un enlace de descarga único (ej. `/download/abc-123`).
+5.  **Obtener Enlace:** El servidor guarda el archivo cifrado en MongoDB (usando GridFS), añade una nueva entrada a la colección de MongoDB con los metadatos y devuelve un enlace de descarga único (ej. /download/123).
 
 ### 2. Para Descargar Archivos (Página de Descarga)
 
@@ -51,7 +51,7 @@ Este flujo utiliza una máquina de estados para una experiencia de usuario clara
 4.  **Estado `success` (Confirmar Descarga):** La app muestra un modal de éxito con los detalles del archivo (nombre, tamaño) y un botón "Descargar".
 5.  **Descarga y Descifrado:** Al pulsar "Descargar":
     a.  El navegador llama a `GET /api/download/[id]?hash=...`.
-    b.  La API devuelve el **blob cifrado** desde la carpeta `/uploads`.
+    b.  La API devuelve el **blob cifrado** desde MongoDB (GridFS).
     c.  El navegador recibe este blob, usa la contraseña original (guardada en el estado) y la `Web Crypto API` (`decryptZip`) para descifrarlo.
     d.  Se genera un nuevo `Blob` local con el `.zip` descifrado y se ofrece al usuario para su descarga.
 6.  **Estado Final:** Aparece un modal de "Descarga Completa", invitando al usuario a subir sus propios archivos.
@@ -77,4 +77,4 @@ Este flujo utiliza una máquina de estados para una experiencia de usuario clara
 * **Peticiones API:** Axios
 * **Compresión (Cliente):** `JSZip`
 * **Cifrado (Cliente):** `Web Crypto API` (AES-GCM)
-* **Almacenamiento de Archivos:** Sistema de archivos local (`/uploads`)
+* **Almacenamiento de Archivos:** **MongoDB (GridFS)** para el almacenamiento de blobs (archivos) cifrados.
