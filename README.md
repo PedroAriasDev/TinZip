@@ -4,6 +4,8 @@ TinZip es una aplicación web para compartir archivos de forma segura. La caract
 
 Se genera un enlace de descarga único protegido por contraseña que expira después de 72 horas. La persistencia de los metadatos se maneja a través de una base de datos **MongoDB**, priorizando la máxima privacidad y un almacenamiento de datos robusto.
 
+La pagina esta subida en Render. Link: https://tinzip.onrender.com/
+
 ## Características Principales
 
 * **Cifrado en el Cliente (Client-Side):** Los archivos nunca salen de tu navegador sin estar cifrados con AES-GCM. El servidor solo almacena un blob cifrado.
