@@ -96,5 +96,5 @@ export const uploadSchema = Yup.object().shape({
     ),
 
   title: Yup.string().nullable().max(100, "Título: máximo 100 caracteres"),
-  description: Yup.string().nullable().max(500, "Descripción: máximo 500 caracteres"),
+  description: Yup.string().nullable().max(250, "Descripción: máximo 250 caracteres"),
 })

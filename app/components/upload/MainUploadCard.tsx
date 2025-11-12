@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import { hashPassword } from "@/utils/hashPassword"
 import { useUpload } from "@/hooks/useUpload"
@@ -16,13 +16,43 @@ export default function MainUploadCard() {
   const { status, progress, link, uploadFiles, resetStatus } = useUpload();
   const [finalPassword, setFinalPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+
   const handleReset = () => {
     setFiles([]);
     setFinalPassword("");
     setErrorMessage("");
     resetStatus();
   };
+
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault()
+      setIsDragging(true)
+    }
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault()
+      setIsDragging(false)
+      if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+        const selected = Array.from(e.dataTransfer.files)
+        setFiles(selected)
+        const validation = validateFiles(selected)
+        setFileError(validation.valid ? "" : validation.message)
+      }
+    }
+    const handleDragLeave = () => setIsDragging(false)
+
+    window.addEventListener("dragover", handleDragOver)
+    window.addEventListener("drop", handleDrop)
+    window.addEventListener("dragleave", handleDragLeave)
+
+    return () => {
+      window.removeEventListener("dragover", handleDragOver)
+      window.removeEventListener("drop", handleDrop)
+      window.removeEventListener("dragleave", handleDragLeave)
+    }
+  }, [])
 
   if (status === "success") {
     return <SuccessCard link={link} password={finalPassword} onClose={handleReset} />;
@@ -35,13 +65,16 @@ export default function MainUploadCard() {
   return (
     <div className="bg-card rounded-xl border border-border shadow-lg p-6 max-w-xl mx-auto">
       <h2 className="text-xl font-semibold mb-4 text-foreground">Subir Archivos</h2>
+      {isDragging && (
+        <div className="absolute inset-0 bg-primary/10 border-4 border-primary/50 rounded-xl pointer-events-none transition"></div>
+      )}
       <Formik
         initialValues={{
-          origin: "el_big_tin@bigtin.tin",
-          destinatarios: "bruno_go_br_br@gmail.com",
+          origin: "",
+          destinatarios: "",
           password: "",
-          title: "Titulo por defecto",
-          description: "Albion Online es un MMORPG no lineal, donde escribes tu propia historia sin limitarte a seguir un camino prefijado.",
+          title: "",
+          description: "",
         }}
         validationSchema={uploadSchema}
         onSubmit={async (values, { resetForm }) => {
@@ -74,13 +107,13 @@ export default function MainUploadCard() {
           <Form className="space-y-4">
             <div>
               <label className="block text-sm font-medium">Origen *</label>
-              <Field name="origin" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <Field name="origin" type="text" placeholder="el_big_tin@bigtin.tin" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
               <ErrorMessage name="origin" component="p" className="text-destructive text-sm" />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Destinatarios</label>
-              <Field name="destinatarios" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <Field name="destinatarios" type="text" placeholder="bruno_go_br_br@gmail.com" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
               <ErrorMessage name="destinatarios" component="p" className="text-destructive text-sm" />
             </div>
 
@@ -106,19 +139,32 @@ export default function MainUploadCard() {
 
             <div>
               <label className="block text-sm font-medium">Título</label>
-              <Field name="title" type="text" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <Field name="title" type="text" placeholder="Titulo por defecto" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <ErrorMessage name="title" component="p" className="text-destructive text-sm" />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Descripción</label>
-              <Field as="textarea" name="description" rows="3" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <Field as="textarea" name="description" placeholder="Albion Online es un MMORPG no lineal, donde escribes tu propia historia sin limitarte a seguir un camino prefijado." rows="3" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
+              <ErrorMessage name="description" component="p" className="text-destructive text-sm" />
             </div>
 
-            <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors
-              ${fileError 
-                ? "border-destructive bg-destructive/20" // Estado de Error
-                : "border-primary/40 bg-secondary hover:bg-input" // Estado Normal/Válido
-              }`}>
+            <div
+              onClick={() => document.getElementById("file-upload")?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault()
+                const selected = Array.from(e.dataTransfer.files)
+                setFiles(selected)
+                const validation = validateFiles(selected)
+                setFileError(validation.valid ? "" : validation.message)
+              }}
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
+                ${fileError
+                  ? "border-destructive bg-destructive/20"
+                  : "border-primary/50 bg-secondary hover:bg-primary/10 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                }`}
+            >
               <input
                 type="file"
                 multiple
@@ -155,11 +201,12 @@ export default function MainUploadCard() {
             <button
               type="submit"
               disabled={!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0}
-              className={`
-                w-full rounded-lg py-2 font-semibold transition
+             className={`
+                w-full rounded-lg py-2 font-semibold transition-all
                 ${!isValid || !dirty || isSubmitting || status === "uploading" || !!fileError || files.length === 0
-                  ? "bg-muted text-muted-foreground cursor-not-allowed" // Estado Deshabilitado
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"} {/* Estado Habilitado */}
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] active:bg-primary/95 shadow-md"
+                }
               `}
             >
               {status === "uploading" ? `Subiendo... ${progress}%` : "Comprimir y Enviar"}
