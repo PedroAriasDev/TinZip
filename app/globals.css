@@ -28,6 +28,8 @@
   
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0.005 240);
+  --warning: oklch(0.85 0.15 85); /* Amarillo pastel */
+  --warning-foreground: oklch(0.4 0.15 85);
   --border: oklch(0.9 0.01 150);
   --input: oklch(0.9 0.01 150);
   --ring: oklch(0.85 0.15 150); /* Verde Pastel */
@@ -74,6 +76,8 @@
   
   --destructive: oklch(0.5 0.2 25);
   --destructive-foreground: oklch(0.99 0.005 240);
+  --warning: oklch(0.6 0.18 85); /* Amarillo oscuro */
+  --warning-foreground: oklch(0.95 0.05 85);
   --border: oklch(0.25 0.03 250);
   --input: oklch(0.25 0.03 250);
   --ring: oklch(0.6 0.18 150); /* Verde Oscuro */
@@ -134,6 +138,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
