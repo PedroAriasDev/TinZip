@@ -60,8 +60,8 @@ export function validateFiles(files: File[] | null | undefined) {
  * Reglas aplicadas:
  * - origin: obligatorio; acepta email válido *o* nombre (sin @). Si contiene '@' se valida como email.
  * - destinatarios: opcional; si se provee, debe ser una lista de emails separados por comas.
- * - password: opcional (si no se provee el frontend generará una contraseña automática); si existe, mínimo 4 caracteres.
- * - title: opcional, hasta 100 chars
+ * - password: obligatorio con mínimo 8 caracteres
+ * - title: obligatorio, hasta 100 chars
  * - description: opcional, hasta 500 chars
  */
 export const uploadSchema = Yup.object().shape({

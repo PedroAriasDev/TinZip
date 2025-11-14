@@ -1,21 +1,16 @@
+"use client";
 import React from "react";
 
-type ExpirationWarningProps = {
-  hoursRemaining: number;
-};
-
-export function ExpirationWarning({ hoursRemaining }: ExpirationWarningProps) {
+export function ExpirationWarning({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
-      <div className="flex items-start gap-3">
-        <div>
-          <p className="font-semibold text-amber-900 mb-1">Este enlace expira automáticamente</p>
-          <p className="text-sm text-amber-800">
-            72 horas después de su creación. Tiempo restante:{" "}
-            <span className="font-bold">{hoursRemaining} horas</span>
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-yellow-50">
+      <h2 className="text-2xl font-bold text-yellow-700 mb-3">⚠️ Este archivo ha expirado</h2>
+      <button
+        onClick={onRetry}
+        className="py-2 px-4 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+      >
+        Volver
+      </button>
     </div>
   );
 }

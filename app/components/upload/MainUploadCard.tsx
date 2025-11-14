@@ -143,7 +143,7 @@ export default function MainUploadCard() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Título</label>
+              <label className="block text-sm font-medium">Título *</label>
               <Field name="title" type="text" placeholder="Titulo por defecto" className="w-full border border-border rounded-lg p-2 bg-background focus:ring-2 focus:ring-ring" />
               <ErrorMessage name="title" component="p" className="text-destructive text-sm" />
             </div>
@@ -184,7 +184,7 @@ export default function MainUploadCard() {
                   setFileError(validation.valid ? "" : validation.message);
                 }}
               />
-              <label htmlFor="file-upload" className={`cursor-pointer font-medium ${
+              <label className={`cursor-pointer font-medium ${
                 fileError ? "text-destructive" : "text-primary" // Color de texto dinámico
               }`}>
                 Arrastra o selecciona archivos

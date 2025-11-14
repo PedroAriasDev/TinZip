@@ -1,18 +1,21 @@
 "use client";
 
+import { use } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PasswordForm } from "@/app/components/download/test/PasswordForm";
+
+import { PasswordForm } from "@/app/components/download/PasswordForm";
 import { LoadingComponent } from "@/app/components/download/LoadingComponent";
-import { DownloadModal } from "@/app/components/download/test/DownloadModal";
-import { ErrorModal } from "@/app/components/download/test/ErrorModal";
-import { ExpirationWarning } from "@/app/components/download/test/ExpirationWarning";
-import { InvalidPassword } from "@/app/components/download/test/InvalidPassword";
-import { FileNotFound } from "@/app/components/download/test/FileNotFound";
-import { use } from "react";
+import { DownloadModal } from "@/app/components/download/DownloadModal";
+import { ErrorModal } from "@/app/components/download/ErrorModal";
+import { ExpirationWarning } from "@/app/components/download/ExpirationWarning";
+import { InvalidPassword } from "@/app/components/download/InvalidPassword";
+import { FileNotFound } from "@/app/components/download/FileNotFound";
+import { SuccessDownloadModal } from "@/app/components/download/SuccessDownloadModal";
+
 import { hashPassword } from "@/utils/hashPassword";
 import { decryptZip } from "@/utils/decryptZip";
-import { SuccessDownloadModal } from "@/app/components/download/SuccessDownloadModal";
+
 import { FileRecordInfoApiResponse } from "@/app/api/validate/[id]/route";
 
 type PageStatus =

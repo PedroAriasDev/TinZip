@@ -94,6 +94,18 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Light mode */
+::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+
+/* Dark mode */
+.dark ::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+
 /* Animación de movimiento suave para el fondo */
 @keyframes animated-landscape {
   0% { transform: translate(-10%, -10%) scale(1.5); }
